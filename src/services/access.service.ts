@@ -5,6 +5,7 @@ import KeyStoreRepository from '@/repositories/key-store.repository'
 import { AuthFailure, BadRequest } from '@/shared/responses/error.response'
 import { generateTokenPair } from '@/shared/helpers/jwt-handler'
 import { getInfoData } from '@/shared/utils'
+import { IUserInfo } from '@/shared/types/user'
 import { ErrorMessages } from '@/shared/constants'
 
 export default class AccessService {
@@ -107,5 +108,17 @@ export default class AccessService {
       user: getInfoData(user.toObject(), ['_id', 'email', 'name']),
       tokens
     }
+  }
+
+  static logout = async (userInfo: IUserInfo) => {
+    /** Delete key store */
+    const { userId } = userInfo
+    const deletedKeyStore = await KeyStoreRepository.deleteKeyStoreByUser(userId)
+    if (!deletedKeyStore) {
+      throw new AuthFailure({
+        message: ErrorMessages.KEY_STORE_NOT_FOUND
+      })
+    }
+    return {}
   }
 }

@@ -18,5 +18,6 @@ export enum ErrorMessages {
 
 export enum SuccessMessages {
   REGISTER_SUCCESSFULLY = 'Register successfully',
-  LOGIN_SUCCESSFULLY = 'Login successfully'
+  LOGIN_SUCCESSFULLY = 'Login successfully',
+  LOGOUT_SUCCESSFULLY = 'Logout successfully'
 }
