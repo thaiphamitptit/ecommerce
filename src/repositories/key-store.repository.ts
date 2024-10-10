@@ -16,4 +16,11 @@ export default class KeyStoreRepository {
     }
     return await keyStoreModel.findOneAndUpdate(filter, update, options)
   }
+
+  static findKeyStoreByUser = async (user: string) => {
+    const filter = {
+      user
+    }
+    return await keyStoreModel.findOne(filter)
+  }
 }
