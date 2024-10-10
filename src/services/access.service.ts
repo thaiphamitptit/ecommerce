@@ -2,10 +2,11 @@ import bcrypt from 'bcrypt'
 import { generateKeyPairSync, randomBytes } from 'crypto'
 import UserRepository from '@/repositories/user.repository'
 import KeyStoreRepository from '@/repositories/key-store.repository'
-import { AuthFailure, BadRequest } from '@/shared/responses/error.response'
+import { AuthFailure, BadRequest, Forbidden } from '@/shared/responses/error.response'
 import { generateTokenPair } from '@/shared/helpers/jwt-handler'
-import { getInfoData } from '@/shared/utils'
 import { IUserInfo } from '@/shared/types/user'
+import { IKeyStore } from '@/shared/types/key-store'
+import { getInfoData } from '@/shared/utils'
 import { ErrorMessages } from '@/shared/constants'
 
 export default class AccessService {
@@ -120,5 +121,43 @@ export default class AccessService {
       })
     }
     return {}
+  }
+
+  static refreshTokens = async (userInfo: IUserInfo, keyStore: IKeyStore, refreshToken: string) => {
+    const { userId, email } = userInfo
+    /** Check token reused or not */
+    if (keyStore.refreshTokensUsed.includes(refreshToken)) {
+      await KeyStoreRepository.deleteKeyStoreByUser(userId)
+      throw new Forbidden({
+        message: ErrorMessages.AUTH_TOKEN_ALREADY_REUSED
+      })
+    }
+    /** Check token valid or not */
+    if (keyStore.refreshToken !== refreshToken) {
+      throw new AuthFailure({
+        message: ErrorMessages.INVALID_AUTH_TOKEN
+      })
+    }
+    /** Check user exists or not */
+    const user = await UserRepository.findUserByEmail(email)
+    if (!user) {
+      throw new BadRequest({
+        message: ErrorMessages.EMAIL_NOT_REGISTERED
+      })
+    }
+    /** Generate token pair */
+    const tokens = await generateTokenPair({
+      payload: {
+        userId,
+        email
+      },
+      secretOrPrivateKey: keyStore.privateKey
+    })
+    /** Update key store */
+    await KeyStoreRepository.updateKeyStoreByRefreshToken(refreshToken, tokens.refreshToken)
+    return {
+      user: getInfoData(user.toObject(), ['_id', 'email', 'name']),
+      tokens
+    }
   }
 }

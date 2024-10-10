@@ -13,11 +13,13 @@ export enum ErrorMessages {
   EMAIL_NOT_REGISTERED = 'Email not registered',
   INVALID_CREDENTIALS = 'Invalid credentials',
   KEY_STORE_NOT_FOUND = 'Key store not found',
-  INVALID_AUTH_TOKEN = 'Invalid auth token'
+  INVALID_AUTH_TOKEN = 'Invalid auth token',
+  AUTH_TOKEN_ALREADY_REUSED = 'Auth token already reused'
 }
 
 export enum SuccessMessages {
   REGISTER_SUCCESSFULLY = 'Register successfully',
   LOGIN_SUCCESSFULLY = 'Login successfully',
-  LOGOUT_SUCCESSFULLY = 'Logout successfully'
+  LOGOUT_SUCCESSFULLY = 'Logout successfully',
+  REFRESH_TOKENS_SUCCESSFULLY = 'Refresh tokens successfully'
 }

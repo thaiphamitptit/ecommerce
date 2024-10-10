@@ -24,6 +24,24 @@ export default class KeyStoreRepository {
     return await keyStoreModel.findOne(filter)
   }
 
+  static updateKeyStoreByRefreshToken = async (refreshToken: string, newRefreshToken: string) => {
+    const filter = {
+      refreshToken
+    }
+    const update = {
+      $set: {
+        refreshToken: newRefreshToken
+      },
+      $push: {
+        refreshTokensUsed: refreshToken
+      }
+    }
+    const options = {
+      new: true
+    }
+    return await keyStoreModel.findOneAndUpdate(filter, update, options)
+  }
+
   static deleteKeyStoreByUser = async (user: string) => {
     const filter = {
       user
